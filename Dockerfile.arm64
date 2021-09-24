@@ -1,0 +1,47 @@
+FROM debian:buster as builder
+
+ENV HOST=aarch64
+ENV ARCH=arm64
+
+RUN set -ex && \
+    dpkg --add-architecture $ARCH \
+    && apt-get update \
+    && apt-get install \
+    git \
+    curl \
+    automake \
+    autoconf \
+    build-essential \
+    cmake \
+    pkg-config \
+    gcc-${HOST}-linux-gnu \
+    g++-${HOST}-linux-gnu \
+    binutils-${HOST}-linux-gnu \
+    gperf \
+    libtool -y
+# Monero
+WORKDIR /src
+
+ARG NPROC=4
+ARG MONERO_VERSION=v0.17.2.3
+ARG MONERO_HASH=2222bea92fdeef7e6449d2d784cdfc3012641ee1
+COPY funcs.mk /tmp/
+RUN set -ex \
+    && git clone https://github.com/monero-project/monero.git --depth 1 -b ${MONERO_VERSION} \
+    && cd monero \
+    && test `git rev-parse HEAD` = ${MONERO_HASH} || exit 1 \
+    && mv /tmp/funcs.mk contrib/depends/ \
+    && git submodule init \
+    && git submodule update \
+    && rm -rf build \
+    && make -j${NPROC} depends target=${HOST}-linux-gnu
+
+# runtime stage
+FROM gcr.io/distroless/base@sha256:703a4726aedc9ec7a7e32251087565246db117bb9a141a7993d1c4bb4036660d
+
+EXPOSE 18080
+EXPOSE 18081
+
+#USER nonroot
+COPY --chown=65532:65532 --from=builder /src/monero/build/aarch64-linux-gnu/release/bin/monerod /usr/local/bin/monerod
+CMD ["/usr/local/bin/monerod","--config-file=/home/nonroot/monerod.conf","--non-interactive"]

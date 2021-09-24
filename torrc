@@ -1,0 +1,14 @@
+AvoidDiskWrites 1
+HardwareAccel 1
+
+SOCKSPort 127.0.0.1:9050
+SOCKSPolicy accept 127.0.0.1
+SOCKSPolicy reject *
+
+ExitRelay 0
+TestSocks 1
+
+HiddenServiceDir /tor/share/monero/
+HiddenServicePort 18081 localhost:18081
+HiddenServicePort 18083 localhost:18083
+HiddenServiceVersion 3
