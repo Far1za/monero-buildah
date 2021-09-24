@@ -23,7 +23,7 @@ Edit **Dockerfile.arm64** and update the file to target the right architecture a
 ENV HOST=**aarch64**
 ENV ARCH=**arm64**
 
-ARG MONERO_VERSION=**v0.17.2.3**
+ARG MONERO_VERSION=**v0.17.2.3**  
 ARG MONERO_HASH=**2222bea92fdeef7e6449d2d784cdfc3012641ee1**
 
 FROM gcr.io/distroless/base@sha256:gcr.io/distroless/base@sha256:**703a4726aedc9ec7a7e32251087565246db117bb9a141a7993d1c4bb4036660d**
